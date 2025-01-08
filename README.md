@@ -3503,19 +3503,6 @@ function openStorePage(category) {
       <h2>${locator.details.name}</h2>
     </div>
     <div class="store-content">
-      <!-- Image Carousel -->
-      <div class="carousel">
-        <div class="carousel-inner">
-          ${locator.details.images?.map(img => `
-            <div class="carousel-item">
-              <img src="${img}" alt="${locator.details.name}">
-            </div>
-          `).join('')}
-        </div>
-        <button class="carousel-control prev" onclick="changeSlide(-1)">&#10094;</button>
-        <button class="carousel-control next" onclick="changeSlide(1)">&#10095;</button>
-      </div>
-      
       <!-- Store Info -->
       <div class="store-info">
         <img src="${locator.details.image}" alt="${locator.details.name}" class="store-logo">
@@ -3828,64 +3815,6 @@ function addStorePageStyles() {
       color: #fff;
       font-weight: 600;
       letter-spacing: -0.5px;
-    }
-
-    /* Carousel */
-    .carousel {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .carousel-inner {
-      display: flex;
-      transition: transform 0.5s ease;
-    }
-
-    .carousel-item {
-      min-width: 100%;
-      position: relative;
-    }
-
-    .carousel-item img {
-      width: 100%;
-      height: auto;
-      border-radius: 16px;
-      transition: transform 0.3s ease;
-    }
-
-    .carousel-item:hover img {
-      transform: scale(1.02);
-    }
-
-    .carousel-control {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.6);
-      border: none;
-      color: #fff;
-      font-size: 2em;
-      cursor: pointer;
-      padding: 12px;
-      border-radius: 50%;
-      transition: background 0.3s ease, transform 0.3s ease;
-    }
-
-    .carousel-control:hover {
-      background: rgba(0, 0, 0, 0.8);
-      transform: translateY(-50%) scale(1.1);
-    }
-
-    .carousel-control.prev {
-      left: 15px;
-    }
-
-    .carousel-control.next {
-      right: 15px;
     }
 
     /* Store Info */
