@@ -3126,7 +3126,7 @@ function showLocatorsOverlay() {
 }
 
 .locators-grid {
-  margin-top: 75px;
+  margin-top: 70px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
   gap: 20px;
@@ -3318,6 +3318,7 @@ function showLocatorsOverlay() {
   .locators-grid {
     grid-template-columns: 1fr;
     padding: 0 10px;
+    margin-top: 80px;
     gap: 15px;
   }
 
