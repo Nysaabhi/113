@@ -2716,6 +2716,7 @@ const locatorsData = [
       timings: "Mon-Sun: 9 AM - 10 PM",
       payment: "Cash, Credit/Debit Cards, UPI",
       mapLink: "https://maps.example.com/dmart",
+      menuLink: "https://www.dmart.in/",
       images: [
         "https://www.projectsmonitor.com/wp-content/uploads/2021/09/@DMartOfficiall.jpg",
         "https://www.goodreturns.in/img/1200x60x675/2020/04/dmart-1525851463-1586576977.jpg"
@@ -2729,7 +2730,7 @@ const locatorsData = [
         { name: "Rice", price: "$10/5kg", image: "https://example.com/rice.jpg" },
         { name: "Wheat Flour", price: "$8/5kg", image: "https://example.com/wheat.jpg" }
       ],
-      coupons: [
+      promos: [
         { code: "DMART10", description: "Get 10% off on your first order" }
       ],
       support: {
@@ -2749,6 +2750,7 @@ const locatorsData = [
       timings: "Mon-Sun: 10 AM - 11 PM",
       payment: "Cash, Credit/Debit Cards, UPI",
       mapLink: "https://maps.example.com/mcdonalds",
+      menuLink: "https://mcdelivery.co.in/menu",
       images: [
         "https://example.com/mcd1.jpg",
         "https://example.com/mcd2.jpg"
@@ -2762,7 +2764,7 @@ const locatorsData = [
         { name: "Big Mac", price: "$5.99", image: "https://example.com/bigmac.jpg" },
         { name: "French Fries", price: "$2.99", image: "https://example.com/fries.jpg" }
       ],
-      coupons: [
+      promos: [
         { code: "MCD20", description: "Get 20% off on orders above $20" }
       ],
       support: {
@@ -3455,7 +3457,6 @@ function shareLocation(name) {
   }
 }
 
-// Function to render locator cards
 function renderLocatorCards(filteredData) {
   return filteredData.map(locator => `
     <div class="locator-card" onclick="openStorePage('${locator.category}')">
@@ -3471,17 +3472,17 @@ function renderLocatorCards(filteredData) {
       </div>
       <div class="locator-card-actions">
         ${locator.details.menu ? `
-          <button class="action-button" onclick="showMenu(event, '${locator.category}')">
+          <a href="${locator.details.menuLink}" target="_blank" class="action-button" onclick="event.stopPropagation()">
             <i class="fas fa-utensils"></i> Menu
-          </button>
+          </a>
         ` : ''}
-        <a href="${locator.details.mapLink}" target="_blank" class="action-button">
+        <a href="${locator.details.mapLink}" target="_blank" class="action-button" onclick="event.stopPropagation()">
           <i class="fas fa-map-marker-alt"></i> Map
         </a>
-        <button class="action-button" onclick="showInfo('${locator.category}')">
+        <button class="action-button" onclick="openStorePage('${locator.category}'); event.stopPropagation()">
           <i class="fas fa-info-circle"></i> Info
         </button>
-        <button class="action-button chat-button" onclick="showChatSupport('${locator.category}')">
+        <button class="action-button chat-button" onclick="showChatSupport('${locator.category}'); event.stopPropagation()">
           <i class="fas fa-comments"></i> Chat
         </button>
       </div>
@@ -3519,7 +3520,7 @@ function openStorePage(category) {
       <div class="store-tabs">
         <button class="tab-button active" data-tab="locator">Store Locator</button>
         <button class="tab-button" data-tab="catalog">Product Catalog</button>
-        <button class="tab-button" data-tab="coupons">Coupons & Deals</button>
+        <button class="tab-button" data-tab="promos">Promos & Deals</button>
         <button class="tab-button" data-tab="support">Customer Support</button>
       </div>
       
@@ -3556,14 +3557,14 @@ function openStorePage(category) {
             </div>
           </div>
         </div>
-        <div id="coupons" class="tab-pane">
-          <!-- Coupons & Deals Content -->
-          <div class="coupons-deals" id="couponsGrid">
-            <h4>Available Coupons & Deals</h4>
-            ${locator.details.coupons?.map(coupon => `
-              <div class="coupon-item">
-                <p>${coupon.code} - ${coupon.description}</p>
-                <button onclick="copyCoupon('${coupon.code}')">Copy Code</button>
+        <div id="promos" class="tab-pane">
+          <!-- Promos & Deals Content -->
+          <div class="promos-deals" id="promosGrid">
+            <h4>Available Promos & Deals</h4>
+            ${locator.details.promos?.map(promo => `
+              <div class="promo-item">
+                <p>${promo.code} - ${promo.description}</p>
+                <button onclick="copyPromo('${promo.code}')">Copy Code</button>
               </div>
             `).join('')}
           </div>
@@ -3622,8 +3623,8 @@ function initializeSearch() {
 
 // Function to understand user intent using simple NLP
 function understandUserIntent(searchTerm) {
-  if (searchTerm.includes('coupon') || searchTerm.includes('deal')) {
-    return 'coupons';
+  if (searchTerm.includes('offer') || searchTerm.includes('deal')) {
+    return 'promos';
   } else if (searchTerm.includes('product') || searchTerm.includes('item')) {
     return 'catalog';
   } else if (searchTerm.includes('support') || searchTerm.includes('contact')) {
@@ -3675,22 +3676,22 @@ function filterStoreContent(searchTerm, intent) {
     }
   }
 
-  // Filter Coupons & Deals
-  const couponsGrid = document.getElementById('couponsGrid');
-  if (couponsGrid) {
-    const coupons = couponsGrid.querySelectorAll('.coupon-item');
-    let couponMatch = false;
-    coupons.forEach(coupon => {
-      const couponText = coupon.textContent.toLowerCase();
-      if (couponText.includes(searchTerm)) {
-        coupon.style.display = 'flex';
-        couponMatch = true;
+  // Filter Promos & Deals
+  const promosGrid = document.getElementById('promosGrid');
+  if (promosGrid) {
+    const promos = promosGrid.querySelectorAll('.promo-item');
+    let promoMatch = false;
+    promos.forEach(promo => {
+      const promoText = promo.textContent.toLowerCase();
+      if (promoText.includes(searchTerm)) {
+        promo.style.display = 'flex';
+        promoMatch = true;
       } else {
-        coupon.style.display = 'none';
+        promo.style.display = 'none';
       }
     });
-    if (couponMatch) {
-      document.getElementById('coupons').style.display = 'block';
+    if (promoMatch) {
+      document.getElementById('promos').style.display = 'block';
     }
   }
 
@@ -3723,7 +3724,7 @@ function filterStoreContent(searchTerm, intent) {
   }
 
   // Show no results message if no matches found
-  if (!productMatch && !couponMatch && !supportText?.includes(searchTerm) && !locatorMatch) {
+  if (!productMatch && !promoMatch && !supportText?.includes(searchTerm) && !locatorMatch) {
     if (!noResultsMessage) {
       const noResultsDiv = document.createElement('div');
       noResultsDiv.id = 'noResultsMessage';
@@ -3983,13 +3984,13 @@ function addStorePageStyles() {
       transform: scale(1.05);
     }
 
-    /* Coupons & Deals */
-    .coupons-deals {
+    /* Promos & Deals */
+    .promos-deals {
       display: grid;
       gap: 20px;
     }
 
-    .coupon-item {
+    .promo-item {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 16px;
       padding: 20px;
@@ -3999,13 +4000,13 @@ function addStorePageStyles() {
       backdrop-filter: blur(10px);
     }
 
-    .coupon-item p {
+    .promo-item p {
       margin: 0;
       color: rgba(255, 255, 255, 0.8);
       font-size: 1em;
     }
 
-    .coupon-item button {
+    .promo-item button {
       background: rgba(255, 215, 0, 0.1);
       border: none;
       color: #fff;
@@ -4015,7 +4016,7 @@ function addStorePageStyles() {
       transition: background 0.3s ease, transform 0.3s ease;
     }
 
-    .coupon-item button:hover {
+    .promo-item button:hover {
       background: rgba(255, 215, 0, 0.2);
       transform: scale(1.05);
     }
@@ -4121,11 +4122,11 @@ function addStorePageStyles() {
         font-size: 0.85em;
       }
 
-      .coupon-item p {
+      .promo-item p {
         font-size: 0.9em;
       }
 
-      .coupon-item button {
+      .promo-item button {
         font-size: 0.85em;
       }
 
@@ -4160,6 +4161,437 @@ function addStorePageStyles() {
     }
   `;
   document.head.appendChild(style);
+}
+
+function showMetropolisModal() {
+  // Enhanced data processing with more robust error handling
+  const metropolisGroups = locatorsData.reduce((acc, locator) => {
+    if (!locator || !locator.metropolis) return acc;
+    
+    const metropolis = locator.metropolis.trim();
+    if (!metropolis) return acc;
+
+    if (!acc[metropolis]) {
+      acc[metropolis] = {
+        name: metropolis,
+        categories: new Set(),
+        count: 0,
+        uniqueCategories: new Set() // Track unique categories more precisely
+      };
+    }
+    
+    // Only add if category is unique for this metropolis
+    if (locator.category && !acc[metropolis].uniqueCategories.has(locator.category)) {
+      acc[metropolis].categories.add(locator.category);
+      acc[metropolis].uniqueCategories.add(locator.category);
+    }
+    acc[metropolis].count++;
+    return acc;
+  }, {});
+
+  // More sophisticated sorting with secondary criteria
+  const metropoliesToShow = Object.values(metropolisGroups)
+    .sort((a, b) => {
+      // Primary sort by number of locations
+      if (b.count !== a.count) return b.count - a.count;
+      
+      // Secondary sort by number of unique categories
+      return b.categories.size - a.categories.size;
+    });
+
+  const modal = document.createElement('div');
+  modal.id = 'metropolisSelectionModal';
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-labelledby', 'metropolis-modal-title');
+  modal.className = 'metropolis-selection-modal';
+  
+  modal.innerHTML = `
+    <div class="metropolis-modal-content" role="document">
+      <div class="metropolis-modal-header">
+        <h2 id="metropolis-modal-title">Select Your City</h2>
+        <p>Explore services across different metropolises</p>
+      </div>
+      
+      <div class="metropolis-grid" id="metropolisGrid">
+        ${metropoliesToShow.map(metropolis => `
+          <div 
+            class="metropolis-card" 
+            onclick="selectMetropolis('${metropolis.name}')"
+            onkeydown="handleMetropolisKeydown(event, '${metropolis.name}')"
+            tabindex="0"
+            role="button"
+            aria-label="Select ${metropolis.name}"
+          >
+            <div class="metropolis-card-inner">
+              <div class="metropolis-icon">
+                <i class="fas fa-city" aria-hidden="true"></i>
+              </div>
+              <div class="metropolis-details">
+                <h3>${metropolis.name}</h3>
+                <div class="metropolis-meta">
+                  <span class="locations-count">
+                    ${metropolis.count} Location${metropolis.count !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+              <div class="metropolis-select-icon" aria-hidden="true">
+                <i class="fas fa-chevron-right"></i>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="metropolis-modal-footer">
+        <button 
+          onclick="closeMetropolisModal()" 
+          class="close-metropolis-modal"
+          aria-label="Close City Selection Modal"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Add styles
+const style = document.createElement('style');
+style.textContent = `
+/* Modal Base */
+.metropolis-selection-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 23, 0.98);
+  z-index: 1500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  animation: modalFadeIn 0.25s ease-out;
+  overscroll-behavior: contain;
+  padding: 1rem;
+}
+
+/* Modal Content Container */
+.metropolis-modal-content {
+  width: 100%;
+  max-width: 900px;
+  background: linear-gradient(145deg, #1e1e24, #2a2a35);
+  border-radius: 1.25rem;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 2rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 215, 0, 0.3) transparent;
+}
+
+.metropolis-modal-content:hover {
+  transform: translateY(-2px);
+}
+
+/* Header Styling */
+.metropolis-modal-header {
+  text-align: left;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metropolis-modal-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.metropolis-modal-header p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+/* Grid Layout */
+.metropolis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+/* Card Styling */
+.metropolis-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 1rem;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.metropolis-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 
+    0 12px 20px -8px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 215, 0, 0.2);
+}
+
+.metropolis-card-inner {
+  display: flex;
+  align-items: center;
+  padding: 1.25rem;
+  gap: 1rem;
+}
+
+/* Icon Container */
+.metropolis-icon {
+  background: rgba(255, 215, 0, 0.08);
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffd700;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.metropolis-card:hover .metropolis-icon {
+  background: rgba(255, 215, 0, 0.15);
+  transform: scale(1.05);
+}
+
+/* Content Details */
+.metropolis-details {
+  flex-grow: 1;
+}
+
+.metropolis-details h3 {
+  color: #ffffff;
+  font-size: 1.125rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.metropolis-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.locations-count {
+  color: rgba(255, 215, 0, 0.9);
+  font-weight: 500;
+}
+
+/* Footer Styling */
+.metropolis-modal-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: right;
+}
+
+.close-metropolis-modal {
+  background: rgba(255, 215, 0, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-metropolis-modal:hover {
+  background: #ffd700;
+  color: #000000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
+}
+
+/* Animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scrollbar Styling */
+.metropolis-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.metropolis-modal-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.metropolis-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 215, 0, 0.3);
+  border-radius: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .metropolis-selection-modal {
+    padding: 0.75rem;
+  }
+
+  .metropolis-modal-content {
+    padding: 1.5rem;
+    max-height: 90vh;
+  }
+
+  .metropolis-modal-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .metropolis-modal-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .metropolis-grid {
+    gap: 1rem;
+  }
+
+  .metropolis-card-inner {
+    padding: 1rem;
+  }
+
+  .metropolis-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .metropolis-modal-content {
+    padding: 1.25rem;
+  }
+
+  .metropolis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metropolis-modal-header h2 {
+    font-size: 1.25rem;
+  }
+}
+  `;
+document.head.appendChild(style);
+document.body.appendChild(modal);
+
+
+  // Add keyboard trap and focus management
+  const firstFocusableElement = modal.querySelector('.metropolis-card');
+  const lastFocusableElement = modal.querySelector('.close-metropolis-modal');
+
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeMetropolisModal();
+    }
+
+    // Keyboard trap
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus();
+        e.preventDefault();
+      } else if (!e.shiftKey && document.activeElement === lastFocusableElement) {
+        firstFocusableElement.focus();
+        e.preventDefault();
+      }
+    }
+  });
+
+  // Focus the first metropolis card when modal opens
+  firstFocusableElement?.focus();
+}
+
+function handleMetropolisKeydown(event, metropolis) {
+  // Allow selection via keyboard
+  if (event.key === 'Enter' || event.key === ' ') {
+    selectMetropolis(metropolis);
+  }
+}
+
+// Update the selectMetropolis function to update the button text
+function selectMetropolis(metropolis) {
+    if (!metropolis) return;
+    
+    // Store the selected metropolis
+    localStorage.setItem('selectedMetropolis', metropolis);
+    
+    // Update the button text and style
+    const metropolisButton = document.querySelector('.select-metropolis');
+    if (metropolisButton) {
+        const nameSpan = metropolisButton.querySelector('.metropolis-name');
+        if (nameSpan) {
+            nameSpan.textContent = metropolis;
+        }
+        metropolisButton.classList.add('has-selection');
+    }
+    
+    // Close the modal with animation
+    closeMetropolisModal();
+    
+    // Filter locators by selected metropolis
+    const filteredData = locatorsData.filter(loc => 
+        loc && loc.metropolis && loc.metropolis.trim() === metropolis
+    );
+    
+    // Update the grid with filtered locators
+    const locatorsGrid = document.getElementById('locatorsGrid');
+    if (locatorsGrid) {
+        locatorsGrid.innerHTML = renderLocatorCards(filteredData);
+        
+        // Announce the change for screen readers
+        const announcement = document.createElement('div');
+        announcement.setAttribute('role', 'status');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.textContent = `Showing locations for ${metropolis}`;
+        document.body.appendChild(announcement);
+        setTimeout(() => announcement.remove(), 3000);
+    }
+    
+    // Update active filter buttons
+    const filterButtons = document.querySelectorAll('.filter-button');
+    filterButtons.forEach(button => button.classList.remove('active'));
+}
+
+function closeMetropolisModal() {
+  const modal = document.getElementById('metropolisSelectionModal');
+  if (modal) {
+    modal.style.opacity = '0';
+    modal.style.transform = 'scale(0.9)';
+    
+    // Improved exit animation with callback
+    setTimeout(() => {
+      modal.remove();
+      // Return focus to the element that opened the modal
+      document.querySelector('[data-metropolis-trigger]')?.focus();
+    }, 300);
+  }
 }
 
 // FAQ data based on categories
@@ -4787,437 +5219,6 @@ function escapeHTML(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
-}
-
-function showMetropolisModal() {
-  // Enhanced data processing with more robust error handling
-  const metropolisGroups = locatorsData.reduce((acc, locator) => {
-    if (!locator || !locator.metropolis) return acc;
-    
-    const metropolis = locator.metropolis.trim();
-    if (!metropolis) return acc;
-
-    if (!acc[metropolis]) {
-      acc[metropolis] = {
-        name: metropolis,
-        categories: new Set(),
-        count: 0,
-        uniqueCategories: new Set() // Track unique categories more precisely
-      };
-    }
-    
-    // Only add if category is unique for this metropolis
-    if (locator.category && !acc[metropolis].uniqueCategories.has(locator.category)) {
-      acc[metropolis].categories.add(locator.category);
-      acc[metropolis].uniqueCategories.add(locator.category);
-    }
-    acc[metropolis].count++;
-    return acc;
-  }, {});
-
-  // More sophisticated sorting with secondary criteria
-  const metropoliesToShow = Object.values(metropolisGroups)
-    .sort((a, b) => {
-      // Primary sort by number of locations
-      if (b.count !== a.count) return b.count - a.count;
-      
-      // Secondary sort by number of unique categories
-      return b.categories.size - a.categories.size;
-    });
-
-  const modal = document.createElement('div');
-  modal.id = 'metropolisSelectionModal';
-  modal.setAttribute('role', 'dialog');
-  modal.setAttribute('aria-labelledby', 'metropolis-modal-title');
-  modal.className = 'metropolis-selection-modal';
-  
-  modal.innerHTML = `
-    <div class="metropolis-modal-content" role="document">
-      <div class="metropolis-modal-header">
-        <h2 id="metropolis-modal-title">Select Your City</h2>
-        <p>Explore services across different metropolises</p>
-      </div>
-      
-      <div class="metropolis-grid" id="metropolisGrid">
-        ${metropoliesToShow.map(metropolis => `
-          <div 
-            class="metropolis-card" 
-            onclick="selectMetropolis('${metropolis.name}')"
-            onkeydown="handleMetropolisKeydown(event, '${metropolis.name}')"
-            tabindex="0"
-            role="button"
-            aria-label="Select ${metropolis.name}"
-          >
-            <div class="metropolis-card-inner">
-              <div class="metropolis-icon">
-                <i class="fas fa-city" aria-hidden="true"></i>
-              </div>
-              <div class="metropolis-details">
-                <h3>${metropolis.name}</h3>
-                <div class="metropolis-meta">
-                  <span class="locations-count">
-                    ${metropolis.count} Location${metropolis.count !== 1 ? 's' : ''}
-                  </span>
-                </div>
-              </div>
-              <div class="metropolis-select-icon" aria-hidden="true">
-                <i class="fas fa-chevron-right"></i>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-
-      <div class="metropolis-modal-footer">
-        <button 
-          onclick="closeMetropolisModal()" 
-          class="close-metropolis-modal"
-          aria-label="Close City Selection Modal"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  `;
-  
-  // Add styles
-const style = document.createElement('style');
-style.textContent = `
-/* Modal Base */
-.metropolis-selection-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(17, 17, 23, 0.98);
-  z-index: 1500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(8px);
-  animation: modalFadeIn 0.25s ease-out;
-  overscroll-behavior: contain;
-  padding: 1rem;
-}
-
-/* Modal Content Container */
-.metropolis-modal-content {
-  width: 100%;
-  max-width: 900px;
-  background: linear-gradient(145deg, #1e1e24, #2a2a35);
-  border-radius: 1.25rem;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  max-height: 85vh;
-  overflow-y: auto;
-  position: relative;
-  transform: translateY(0);
-  transition: transform 0.3s ease;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 215, 0, 0.3) transparent;
-}
-
-.metropolis-modal-content:hover {
-  transform: translateY(-2px);
-}
-
-/* Header Styling */
-.metropolis-modal-header {
-  text-align: left;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.metropolis-modal-header h2 {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #ffffff;
-  margin-bottom: 0.75rem;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.metropolis-modal-header p {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 1rem;
-  line-height: 1.5;
-  max-width: 600px;
-}
-
-/* Grid Layout */
-.metropolis-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
-}
-
-/* Card Styling */
-.metropolis-card {
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 1rem;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  position: relative;
-  overflow: hidden;
-}
-
-.metropolis-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 215, 0, 0.3);
-  box-shadow: 
-    0 12px 20px -8px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 215, 0, 0.2);
-}
-
-.metropolis-card-inner {
-  display: flex;
-  align-items: center;
-  padding: 1.25rem;
-  gap: 1rem;
-}
-
-/* Icon Container */
-.metropolis-icon {
-  background: rgba(255, 215, 0, 0.08);
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffd700;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.metropolis-card:hover .metropolis-icon {
-  background: rgba(255, 215, 0, 0.15);
-  transform: scale(1.05);
-}
-
-/* Content Details */
-.metropolis-details {
-  flex-grow: 1;
-}
-
-.metropolis-details h3 {
-  color: #ffffff;
-  font-size: 1.125rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  line-height: 1.3;
-}
-
-.metropolis-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.locations-count {
-  color: rgba(255, 215, 0, 0.9);
-  font-weight: 500;
-}
-
-/* Footer Styling */
-.metropolis-modal-footer {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: right;
-}
-
-.close-metropolis-modal {
-  background: rgba(255, 215, 0, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 215, 0, 0.2);
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.close-metropolis-modal:hover {
-  background: #ffd700;
-  color: #000000;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.2);
-}
-
-/* Animations */
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Scrollbar Styling */
-.metropolis-modal-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.metropolis-modal-content::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.metropolis-modal-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.3);
-  border-radius: 4px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .metropolis-selection-modal {
-    padding: 0.75rem;
-  }
-
-  .metropolis-modal-content {
-    padding: 1.5rem;
-    max-height: 90vh;
-  }
-
-  .metropolis-modal-header {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-  }
-
-  .metropolis-modal-header h2 {
-    font-size: 1.5rem;
-  }
-
-  .metropolis-grid {
-    gap: 1rem;
-  }
-
-  .metropolis-card-inner {
-    padding: 1rem;
-  }
-
-  .metropolis-icon {
-    width: 3rem;
-    height: 3rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .metropolis-modal-content {
-    padding: 1.25rem;
-  }
-
-  .metropolis-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .metropolis-modal-header h2 {
-    font-size: 1.25rem;
-  }
-}
-  `;
-document.head.appendChild(style);
-document.body.appendChild(modal);
-
-
-  // Add keyboard trap and focus management
-  const firstFocusableElement = modal.querySelector('.metropolis-card');
-  const lastFocusableElement = modal.querySelector('.close-metropolis-modal');
-
-  modal.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      closeMetropolisModal();
-    }
-
-    // Keyboard trap
-    if (e.key === 'Tab') {
-      if (e.shiftKey && document.activeElement === firstFocusableElement) {
-        lastFocusableElement.focus();
-        e.preventDefault();
-      } else if (!e.shiftKey && document.activeElement === lastFocusableElement) {
-        firstFocusableElement.focus();
-        e.preventDefault();
-      }
-    }
-  });
-
-  // Focus the first metropolis card when modal opens
-  firstFocusableElement?.focus();
-}
-
-function handleMetropolisKeydown(event, metropolis) {
-  // Allow selection via keyboard
-  if (event.key === 'Enter' || event.key === ' ') {
-    selectMetropolis(metropolis);
-  }
-}
-
-// Update the selectMetropolis function to update the button text
-function selectMetropolis(metropolis) {
-    if (!metropolis) return;
-    
-    // Store the selected metropolis
-    localStorage.setItem('selectedMetropolis', metropolis);
-    
-    // Update the button text and style
-    const metropolisButton = document.querySelector('.select-metropolis');
-    if (metropolisButton) {
-        const nameSpan = metropolisButton.querySelector('.metropolis-name');
-        if (nameSpan) {
-            nameSpan.textContent = metropolis;
-        }
-        metropolisButton.classList.add('has-selection');
-    }
-    
-    // Close the modal with animation
-    closeMetropolisModal();
-    
-    // Filter locators by selected metropolis
-    const filteredData = locatorsData.filter(loc => 
-        loc && loc.metropolis && loc.metropolis.trim() === metropolis
-    );
-    
-    // Update the grid with filtered locators
-    const locatorsGrid = document.getElementById('locatorsGrid');
-    if (locatorsGrid) {
-        locatorsGrid.innerHTML = renderLocatorCards(filteredData);
-        
-        // Announce the change for screen readers
-        const announcement = document.createElement('div');
-        announcement.setAttribute('role', 'status');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.textContent = `Showing locations for ${metropolis}`;
-        document.body.appendChild(announcement);
-        setTimeout(() => announcement.remove(), 3000);
-    }
-    
-    // Update active filter buttons
-    const filterButtons = document.querySelectorAll('.filter-button');
-    filterButtons.forEach(button => button.classList.remove('active'));
-}
-
-function closeMetropolisModal() {
-  const modal = document.getElementById('metropolisSelectionModal');
-  if (modal) {
-    modal.style.opacity = '0';
-    modal.style.transform = 'scale(0.9)';
-    
-    // Improved exit animation with callback
-    setTimeout(() => {
-      modal.remove();
-      // Return focus to the element that opened the modal
-      document.querySelector('[data-metropolis-trigger]')?.focus();
-    }, 300);
-  }
 }
 
 function filterLocators(value, filterType = 'category') {
